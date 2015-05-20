@@ -1,0 +1,63 @@
+<html>
+	<head>
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+		<title>Gamepad API</title>
+
+		<link href='http://fonts.googleapis.com/css?family=Roboto:400,700,400italic,100' rel='stylesheet' type='text/css'>
+		<link rel="stylesheet" href="example.css">
+
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.2.0/backbone-min.js"></script>
+
+		<script type="text/javascript" src="gamepad.events.js"></script>
+
+
+		<script>
+			$(function(){
+				var gamepads = new GamepadEvents.Gamepads();
+
+
+				gamepads.on('add', function (gamepad, collection) {
+					console.log('gamepad connected', gamepad.id, gamepad.toJSON());
+
+
+					// listen for RAW button/axis events:
+					gamepad.get('buttons').on('change', function (button) {
+						console.log('gamepad with id ' + gamepad.id + ' RAW button', button.id, 'changed', button.get('value'));
+					});
+
+					gamepad.get('axes').on('change', function (axis) {
+						console.log('gamepad with id ' + gamepad.id + ' RAW axis', axis.id, 'changed', axis.get('value'));
+					});
+
+					// listen for all events of the model:
+					gamepad.on('change', function (gamepad) {
+						console.log('gamepad with id ' + gamepad.id + ' changed:', gamepad.changed);
+
+						for(var key in gamepad.changed) {
+							$('.content').prepend('gamepad with id ' + gamepad.id + ' changed: ' + key + ' to ' + gamepad.changed[key] + '<br />');
+						}
+					});
+
+					// you can also listen to specific buttons:
+					gamepad.on('change:button_start', function (gamepad, button_start) {
+						if(button_start == 'pressed')
+							console.log('You pressed the start button on gamepad ' + gamepad.id);
+						else
+							console.log('You released the start button of gamepad ' + gamepad.id);
+					});
+
+				});
+
+				// start looking for gamepads:
+				gamepads.scan();
+			});
+		</script>
+	</head>
+
+	<body>
+		<div class="content"></div>
+	</body>
+
+</html>
