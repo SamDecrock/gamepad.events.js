@@ -64,6 +64,9 @@ Set up listeners for new Gamepads:
         // do stuff with the gamepad model
     });
 
+Start looking for gamepads:
+
+    gamepads.scan();
 
 Set up listeners for a change in a Gamepad:
 
