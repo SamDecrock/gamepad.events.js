@@ -20,16 +20,17 @@ GamepadEvents.Gamepad = Backbone.Model.extend({
 
 	// types of gamepads
 	// ------------------
-	// nr | Firefox id:                              | Chrome id                                                                     | notes
-	// ---| -----------------------------------------| ----------------------------------------------------------------------------- | ----------------------------------------------------
-	// 1  | "81f-e401-USB gamepad           "        | "USB gamepad            (Vendor: 081f Product: e401)"                         | NES USB controller; uses axes for left/right/up/down
-	// 2  | "46d-c219-Logitech Cordless RumblePad 2" | "Logitech Cordless RumblePad 2 (STANDARD GAMEPAD Vendor: 046d Product: c219)" | Playstation like controller; 1/2/3/4 buttons are mapped as playstation buttons square/X/O/triangle
-	// 3  | "e8f-3-USB Joystick     "                | "USB Joystick      (STANDARD GAMEPAD Vendor: 0e8f Product: 0003)"             | Playstation like controller; 1/3/4/2 buttons are mapped as playstation buttons square/X/O/triangle
-	//
+	// nr | Firefox id:                              | Chrome id                                                                     | brand name                    | notes
+	// ---| -----------------------------------------| ----------------------------------------------------------------------------- | ----------------------------- | ----------------------------------------------------
+	// 1  | "81f-e401-USB gamepad           "        | "USB gamepad            (Vendor: 081f Product: e401)"                         | NES (Nintendo) USB controller | uses axes for left/right/up/down
+	// 2  | "46d-c219-Logitech Cordless RumblePad 2" | "Logitech Cordless RumblePad 2 (STANDARD GAMEPAD Vendor: 046d Product: c219)" | Logitech Cordless RumblePad 2 | Playstation like controller; 1/2/3/4 buttons are mapped as playstation buttons square/X/O/triangle
+	// 3  | "e8f-3-USB Joystick     "                | "USB Joystick      (STANDARD GAMEPAD Vendor: 0e8f Product: 0003)"             | König Gaming PC Control Pad   | Playstation like controller; 1/3/4/2 buttons are mapped as playstation buttons square/X/O/triangle
+	// 4  | "54c-268-PLAYSTATION(R)3 Controller"     | "PLAYSTATION(R)3 Controller (STANDARD GAMEPAD Vendor: 054c Product: 0268)"    | Original PS3 controller
 
 
 	initialize: function (options) {
 		switch(this.get('type')) {
+			// NES gampads:
 			case "81f-e401-USB gamepad           ":                     // gamepad 1 in Firefox
 			case "USB gamepad            (Vendor: 081f Product: e401)": // gamepad 1 in Chrome
 			this.set({
@@ -44,29 +45,8 @@ GamepadEvents.Gamepad = Backbone.Model.extend({
 			});
 			break;
 
-			case "46d-c219-Logitech Cordless RumblePad 2":                                      // gamepad 2 in Firefox
-			case "Logitech Cordless RumblePad 2 (STANDARD GAMEPAD Vendor: 046d Product: c219)": // gamepad 2 in Chrome
-			case "e8f-3-USB Joystick     ":                                                     // gamepad 3 in Firefox
-			case "USB Joystick      (STANDARD GAMEPAD Vendor: 0e8f Product: 0003)":             // gamepad 3 in Chrome
-			this.set({
-				button_select  : 'released',
-				button_start   : 'released',
-				button_square  : 'released',
-				button_X       : 'released',
-				button_O       : 'released',
-				button_triangle: 'released',
-				button_up      : 'released',
-				button_down    : 'released',
-				button_left    : 'released',
-				button_right   : 'released',
-				button_L1      : 'released',
-				button_L2      : 'released',
-				button_R1      : 'released',
-				button_R2      : 'released',
-			});
-			break;
-
-			default:     // OTHERS:
+			// OTHERS (Playstation like gamepads)
+			default:
 			this.set({
 				button_select  : 'released',
 				button_start   : 'released',
@@ -86,6 +66,7 @@ GamepadEvents.Gamepad = Backbone.Model.extend({
 			break;
 		}
 
+		// attach listeners to buttons/exis changes:
 		this.get('buttons').on('change', this.button_changed, this);
 		this.get('axes').on('change', this.axis_changed, this);
 	},
@@ -94,33 +75,31 @@ GamepadEvents.Gamepad = Backbone.Model.extend({
 		var isFirefox = navigator.userAgent.indexOf('Firefox') > -1;
 
 		switch(this.get('type')) {
-			case "81f-e401-USB gamepad           ":                        // gamepad 1 in Firefox
-			case "USB gamepad            (Vendor: 081f Product: e401)":    // gamepad 1 in Chrome
+			// only check for non-PS3 mapped gampads:
+			case "81f-e401-USB gamepad           ":                                 // gamepad 1 in Firefox
+			case "USB gamepad            (Vendor: 081f Product: e401)":             // gamepad 1 in Chrome
 			this.NESPAD_button_changed(button);
 			break;
 
-			case "46d-c219-Logitech Cordless RumblePad 2":                                       // gamepad 2 in Firefox
-			this.PSLogitech_Firefox_button_changed(button);
-			break;
-
-			case "Logitech Cordless RumblePad 2 (STANDARD GAMEPAD Vendor: 046d Product: c219)":  // gamepad 2 in Chrome
-			this.PSLogitech_button_changed(button);
-			break;
-
-			case "e8f-3-USB Joystick     ":                                         // gamepad 3 in Firefox
-			this.PSUsbJoystick_Firefox_button_changed(button);
+			case "46d-c219-Logitech Cordless RumblePad 2":                          // gamepad 2 in Firefox
+			this.Logitech_Firefox_button_changed(button);
 			break;
 
 			case "USB Joystick      (STANDARD GAMEPAD Vendor: 0e8f Product: 0003)": // gamepad 3 in Chrome
-			this.PSUsbJoystick_button_changed(button);
+			this.Konig_Chrome_button_changed(button);
+			break;
+
+			case "e8f-3-USB Joystick     ":                                         // gamepad 3 in Firefox
+			this.Konig_Firefox_button_changed(button);
 			break;
 
 
-			default: // let's hope this is corret for all other type of controllers
+			// PS3-mapped gamepads:
+			default:
 			if(isFirefox)
-				this.PSLogitech_Firefox_button_changed(button);
+				this.PS3_Firefox_button_changed(button);
 			else
-				this.PSLogitech_button_changed(button);
+				this.PS3_Chrome_button_changed(button);
 			break;
 		}
 	},
@@ -130,40 +109,15 @@ GamepadEvents.Gamepad = Backbone.Model.extend({
 
 		switch(this.get('type')) {
 			// Some gampads seem to use the Axes when the up/down/left/right buttons are pressed
-			// This is always the case with he NES gamepads
-			// This is also the case with others, but only in Firefox
-			// In Chrome, regular buttons are mapped to the up/down/left/right buttons
+			// This is always the case with the NES gamepads (in Chrome and in Firefox)
+			// This is sometimes the case with others, but only in Firefox
+			// In Chrome, regular buttons are always mapped to the up/down/left/right buttons
 
-			case "81f-e401-USB gamepad           ":                                            // gamepad 1 in Firefox
-			case "USB gamepad            (Vendor: 081f Product: e401)":                        // gamepad 1 in Chrome
-			case "46d-c219-Logitech Cordless RumblePad 2":                                     // gamepad 2 in Firefox
-			case "e8f-3-USB Joystick     ":                                                    // gamepad 3 in Firefox
+			case "81f-e401-USB gamepad           ":                                            // gamepad 1 (NES) in Firefox
+			case "USB gamepad            (Vendor: 081f Product: e401)":                        // gamepad 1 (NES) in Chrome
+			case "46d-c219-Logitech Cordless RumblePad 2":                                     // gamepad 2 (Logitech) in Firefox
+			case "e8f-3-USB Joystick     ":                                                    // gamepad 3 (König) in Firefox
 			this.axis2upDownLeftRight(axis);
-			break;
-
-			default:
-			if(isFirefox) this.axis2upDownLeftRight(axis); // let's hope this is corret for all other controllers
-			break;
-		}
-	},
-
-
-	NESPAD_button_changed: function (button) {
-		switch(button.id) {
-			case 8:
-			this.set('button_select', button.get('value')?'pressed':'released');
-			break;
-
-			case 9:
-			this.set('button_start', button.get('value')?'pressed':'released');
-			break;
-
-			case 0:
-			this.set('button_B', button.get('value')?'pressed':'released');
-			break;
-
-			case 1:
-			this.set('button_A', button.get('value')?'pressed':'released');
 			break;
 		}
 	},
@@ -217,7 +171,7 @@ GamepadEvents.Gamepad = Backbone.Model.extend({
 		}
 	},
 
-	PSLogitech_button_changed: function (button) {
+	NESPAD_button_changed: function (button) {
 		switch(button.id) {
 			case 8:
 			this.set('button_select', button.get('value')?'pressed':'released');
@@ -227,51 +181,17 @@ GamepadEvents.Gamepad = Backbone.Model.extend({
 			this.set('button_start', button.get('value')?'pressed':'released');
 			break;
 
-			case 2:
-			this.set('button_square', button.get('value')?'pressed':'released');
-			break;
-
 			case 0:
-			this.set('button_X', button.get('value')?'pressed':'released');
+			this.set('button_B', button.get('value')?'pressed':'released');
 			break;
 
 			case 1:
-			this.set('button_O', button.get('value')?'pressed':'released');
-			break;
-
-			case 3:
-			this.set('button_triangle', button.get('value')?'pressed':'released');
-			break;
-
-
-			case 4:
-			this.set('button_L1', button.get('value')?'pressed':'released');
-			break;
-
-			case 6:
-			this.set('button_L2', button.get('value')?'pressed':'released');
-			break;
-
-			case 5:
-			this.set('button_R1', button.get('value')?'pressed':'released');
-			break;
-
-			case 7:
-			this.set('button_R2', button.get('value')?'pressed':'released');
-			break;
-
-
-			case 12:
-			case 13:
-			case 14:
-			case 15:
-			this.standardUpDownLeftRight_buttons_changed(button);
+			this.set('button_A', button.get('value')?'pressed':'released');
 			break;
 		}
 	},
 
-
-	PSLogitech_Firefox_button_changed: function (button) {
+	Logitech_Firefox_button_changed: function (button) {
 		switch(button.id) {
 			case 8:
 			this.set('button_select', button.get('value')?'pressed':'released');
@@ -324,7 +244,7 @@ GamepadEvents.Gamepad = Backbone.Model.extend({
 		}
 	},
 
-	PSUsbJoystick_button_changed: function (button) {
+	Konig_Chrome_button_changed: function (button) {
 		switch(button.id) {
 			case 10:
 			this.set('button_select', button.get('value')?'pressed':'released');
@@ -377,7 +297,7 @@ GamepadEvents.Gamepad = Backbone.Model.extend({
 		}
 	},
 
-	PSUsbJoystick_Firefox_button_changed: function (button) {
+	Konig_Firefox_button_changed: function (button) {
 		switch(button.id) {
 			case 10:
 			this.set('button_select', button.get('value')?'pressed':'released');
@@ -429,6 +349,123 @@ GamepadEvents.Gamepad = Backbone.Model.extend({
 			break;
 		}
 	},
+
+
+	PS3_Chrome_button_changed: function (button) {
+		switch(button.id) {
+			case 8:
+			this.set('button_select', button.get('value')?'pressed':'released');
+			break;
+
+			case 9:
+			this.set('button_start', button.get('value')?'pressed':'released');
+			break;
+
+			case 2:
+			this.set('button_square', button.get('value')?'pressed':'released');
+			break;
+
+			case 0:
+			this.set('button_X', button.get('value')?'pressed':'released');
+			break;
+
+			case 1:
+			this.set('button_O', button.get('value')?'pressed':'released');
+			break;
+
+			case 3:
+			this.set('button_triangle', button.get('value')?'pressed':'released');
+			break;
+
+
+			case 4:
+			this.set('button_L1', button.get('value')?'pressed':'released');
+			break;
+
+			case 6:
+			this.set('button_L2', button.get('value')?'pressed':'released');
+			break;
+
+			case 5:
+			this.set('button_R1', button.get('value')?'pressed':'released');
+			break;
+
+			case 7:
+			this.set('button_R2', button.get('value')?'pressed':'released');
+			break;
+
+
+			case 12:
+			case 13:
+			case 14:
+			case 15:
+			this.standardUpDownLeftRight_buttons_changed(button);
+			break;
+		}
+	},
+
+	PS3_Firefox_button_changed: function (button) {
+		switch(button.id) {
+			case 0:
+			this.set('button_select', button.get('value')?'pressed':'released');
+			break;
+
+			case 3:
+			this.set('button_start', button.get('value')?'pressed':'released');
+			break;
+
+			case 15:
+			this.set('button_square', button.get('value')?'pressed':'released');
+			break;
+
+			case 14:
+			this.set('button_X', button.get('value')?'pressed':'released');
+			break;
+
+			case 13:
+			this.set('button_O', button.get('value')?'pressed':'released');
+			break;
+
+			case 12:
+			this.set('button_triangle', button.get('value')?'pressed':'released');
+			break;
+
+
+			case 10:
+			this.set('button_L1', button.get('value')?'pressed':'released');
+			break;
+
+			case 8:
+			this.set('button_L2', button.get('value')?'pressed':'released');
+			break;
+
+			case 11:
+			this.set('button_R1', button.get('value')?'pressed':'released');
+			break;
+
+			case 9:
+			this.set('button_R2', button.get('value')?'pressed':'released');
+			break;
+
+
+			case 4:
+			this.set('button_up', button.get('value')?'pressed':'released');
+			break;
+
+			case 6:
+			this.set('button_down', button.get('value')?'pressed':'released');
+			break;
+
+			case 7:
+			this.set('button_left', button.get('value')?'pressed':'released');
+			break;
+
+			case 5:
+			this.set('button_right', button.get('value')?'pressed':'released');
+			break;
+		}
+	},
+
 
 	standardUpDownLeftRight_buttons_changed: function (button) {
 		// up/down/left/right (only on Chrome):
