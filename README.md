@@ -92,6 +92,7 @@ Or listen to all changes:
 See example.html for more examples.
 
 ## Supported gamepads
+* The [PlayStation 3 Dualshock 3 Wireless Controller](http://www.amazon.com/PlayStation-Dualshock-Wireless-Controller-Black-3/dp/B0015AARJI)
 * The [Logitech Cordless RumblePad 2](http://support.logitech.com/product/cordless-rumblepad-2)
 * The König Gaming PC Control Pad
 * The [NES Nintendo USB Controller](http://www.ebay.com/itm/Classic-Gaming-Controller-Joypad-Gamepad-For-Nintendo-NES-Windows-PC-MAC-EC-/321649413037?ssPageName=ADME:L:OU:BE:3160)

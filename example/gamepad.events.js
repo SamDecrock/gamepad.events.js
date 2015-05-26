@@ -25,7 +25,7 @@ GamepadEvents.Gamepad = Backbone.Model.extend({
 	// 1  | "81f-e401-USB gamepad           "        | "USB gamepad            (Vendor: 081f Product: e401)"                         | NES (Nintendo) USB controller | uses axes for left/right/up/down
 	// 2  | "46d-c219-Logitech Cordless RumblePad 2" | "Logitech Cordless RumblePad 2 (STANDARD GAMEPAD Vendor: 046d Product: c219)" | Logitech Cordless RumblePad 2 | Playstation like controller; 1/2/3/4 buttons are mapped as playstation buttons square/X/O/triangle
 	// 3  | "e8f-3-USB Joystick     "                | "USB Joystick      (STANDARD GAMEPAD Vendor: 0e8f Product: 0003)"             | König Gaming PC Control Pad   | Playstation like controller; 1/3/4/2 buttons are mapped as playstation buttons square/X/O/triangle
-	// 4  | "54c-268-PLAYSTATION(R)3 Controller"     | "PLAYSTATION(R)3 Controller (STANDARD GAMEPAD Vendor: 054c Product: 0268)"    | Original PS3 controller
+	// 4  | "54c-268-PLAYSTATION(R)3 Controller"     | "PLAYSTATION(R)3 Controller (STANDARD GAMEPAD Vendor: 054c Product: 0268)"    | PlayStation 3 Dualshock 3 Wireless Controller
 
 
 	initialize: function (options) {
