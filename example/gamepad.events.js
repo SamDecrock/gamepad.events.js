@@ -62,6 +62,10 @@ GamepadEvents.Gamepad = Backbone.Model.extend({
 				button_L2      : 'released',
 				button_R1      : 'released',
 				button_R2      : 'released',
+				leftstick_x    : 0,
+				leftstick_y    : 0,
+				rightstick_x   : 0,
+				rightstick_y   : 0
 			});
 			break;
 		}
@@ -120,6 +124,31 @@ GamepadEvents.Gamepad = Backbone.Model.extend({
 			this.axis2upDownLeftRight(axis);
 			break;
 		}
+
+
+		// map sticks:
+		if(this.get('type') == "81f-e401-USB gamepad           ") return;                      // gamepad 1 doesnt have sticks
+		if(this.get('type') == "USB gamepad            (Vendor: 081f Product: e401)") return;  // gamepad 1 doesnt have sticks
+
+		switch(axis.get('id')){
+			case 0:
+			this.set('leftstick_x', axis.get('value'));
+			break;
+
+			case 1:
+			this.set('leftstick_y', axis.get('value'));
+			break;
+
+			case 2:
+			this.set('rightstick_x', axis.get('value'));
+			break;
+
+			case 3:
+			this.set('rightstick_y', axis.get('value'));
+			break;
+		}
+
+
 	},
 
 	axis2upDownLeftRight: function (axis) {
